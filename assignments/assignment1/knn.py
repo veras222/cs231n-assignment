@@ -1,6 +1,4 @@
 import numpy as np
-
-
 class KNN:
     """
     K-neariest-neighbor classifier using L1 loss
@@ -12,6 +10,8 @@ class KNN:
         self.train_X = X
         self.train_y = y
 
+    def set_k (self, val):
+        self.k=val
     def predict(self, X, num_loops=0):
         '''
         Uses the KNN model to predict clases for the data samples provided
@@ -93,9 +93,9 @@ class KNN:
         num_test = X.shape[0]
         # Using float32 to to save memory - the default is float64
         dists = np.zeros((num_test, num_train), np.float32)
-        s_train_X_d3=self.train_X[None,::]
+        train_X_d3=self.train_X[None,::]
         X_d3=X[:,None,:]
-        dists = np.sum(np.abs(X_d3-s_train_X_d3),axis=2)
+        dists = np.sum(np.abs(X_d3-train_X_d3),axis=2)
         return dists
 
     def predict_labels_binary(self, dists):
@@ -113,28 +113,22 @@ class KNN:
         num_test = dists.shape[0]
         pred = np.zeros(num_test, np.bool)
         for i in range(num_test):
-            # TODO: Implement choosing best class based on k
-            # nearest training samples
-            pass
+            pred[i]=np.argmax(np.bincount(self.train_y[np.argsort(dists[i])[:self.k]]))
+
         return pred
 
     def predict_labels_multiclass(self, dists):
         '''
         Returns model predictions for multi-class classification case
-        
         Arguments:
         dists, np array (num_test_samples, num_train_samples) - array
            with distances between each test and each train sample
-
         Returns:
         pred, np array of int (num_test_samples) - predicted class index 
            for every test sample
         '''
         num_test = dists.shape[0]
-        num_test = dists.shape[0]
         pred = np.zeros(num_test, np.int)
-        for i in range(num_test):
-            # TODO: Implement choosing best class based on k
-            # nearest training samples
-            pass
+        for i in range(dists.shape[0]):
+            pred[i]=np.argmax(np.bincount(self.train_y[np.argsort(dists[i])[:self.k]]))
         return pred
